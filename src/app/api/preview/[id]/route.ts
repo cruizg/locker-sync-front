@@ -30,7 +30,7 @@ export async function GET(
       { ok: false, msg: "Error previewing file" },
       { status: backendRes.status }
     );
-  }
+  } 
 
   return new NextResponse(backendRes.body, {
     status: backendRes.status,
