@@ -21,14 +21,14 @@ export function UploadDialog() {
     useUploadStore();
 
   // Log component rendering and tasks state
-  console.log(
-    "UploadDialog rendered. Tasks count:",
-    tasks.length,
-    "Minimized:",
-    isMinimized,
-    "Tasks:",
-    tasks,
-  );
+  // console.log(
+  //   "UploadDialog rendered. Tasks count:",
+  //   tasks.length,
+  //   "Minimized:",
+  //   isMinimized,
+  //   "Tasks:",
+  //   tasks,
+  // );
 
   // Temporarily remove conditional rendering to ensure it's always mounted for debugging
   // if (tasks.length === 0 && tasks.filter(task => task.status === 'completed' || task.status === 'failed').length === 0) return null;
@@ -42,7 +42,7 @@ export function UploadDialog() {
 
   // Only render if there are any tasks to show, even completed/failed ones
   if (tasks.length === 0 && completedOrFailedTasks.length === 0) {
-    console.log("UploadDialog: No tasks to display, returning null.");
+    // console.log("UploadDialog: No tasks to display, returning null.");
     return null;
   }
 

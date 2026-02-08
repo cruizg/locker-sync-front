@@ -209,30 +209,31 @@ export const FileList = React.memo(() => {
     Helpers
   -------------------------- */
 
-  const openFile = (file: any) => {
-    const ext = file.name.split(".").pop()?.toLowerCase();
-    const previewable = [
-      "pdf",
-      "png",
-      "jpg",
-      "jpeg",
-      "gif",
-      "webp",
-      "mp4",
-      "webm",
-      "mp3",
-      "wav",
-    ];
+  const openFile = (item: any) => {
+    router.push(`/preview/${item.uid}`);
+    // const ext = file.name.split(".").pop()?.toLowerCase();
+    // const previewable = [
+    //   "pdf",
+    //   "png",
+    //   "jpg",
+    //   "jpeg",
+    //   "gif",
+    //   "webp",
+    //   "mp4",
+    //   "webm",
+    //   "mp3",
+    //   "wav",
+    // ];
 
-    if (previewable.includes(ext!)) {
-      window.open(file.path, "_blank", "noopener,noreferrer");
-      return;
-    }
+    // if (previewable.includes(ext!)) {
+    //   window.open(file.path, "_blank", "noopener,noreferrer");
+    //   return;
+    // }
 
-    const link = document.createElement("a");
-    link.href = file.path;
-    link.download = file.name;
-    link.click();
+    // const link = document.createElement("a");
+    // link.href = file.path;
+    // link.download = file.name;
+    // link.click();
   };
 
   const handleOpen = (item: any) => {

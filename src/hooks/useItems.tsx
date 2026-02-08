@@ -32,7 +32,7 @@ const useItems = <T,>(initialPage: number, path: any) => {
       try {
         setLoading(true);
         const data: any = await getPaginatedItems(page, path);
-        console.log("dataaa", data.items);
+        // console.log("dataaa", data.items);
         if (typeof data.items.totalSize === "number") {
           setTotalSize(data.items.totalSize);
         }
@@ -56,7 +56,7 @@ const useItems = <T,>(initialPage: number, path: any) => {
 
   const loadNextPage = () => {
     if (!loading && hasMore) {
-      console.log("Cargando siguiente página:", page + 1);
+      // console.log("Cargando siguiente página:", page + 1);
       setPage((prevPage) => prevPage + 1);
     }
   };
