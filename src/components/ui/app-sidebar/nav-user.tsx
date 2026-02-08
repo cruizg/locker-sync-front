@@ -29,6 +29,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import { signOut } from "next-auth/react"
+import { logout } from "@/actions"
 
 export function NavUser({
   user,
@@ -103,7 +105,7 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogOut />
+              <LogOut onClick={() => signOut()}/>
               Cerrar Sesion
             </DropdownMenuItem>
           </DropdownMenuContent>
