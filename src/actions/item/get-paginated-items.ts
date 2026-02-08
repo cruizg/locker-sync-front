@@ -24,7 +24,7 @@ export const getPaginatedItems = async (page = 1, path = null) => {
     }
 
     // console.log({ params });
-    console.log("SE EJECUTARA EL CODIGO DE LA PAGINA : ",page)
+    // console.log("SE EJECUTARA EL CODIGO DE LA PAGINA : ",page)
     const queryString = Object.keys(params)
         .map((key) => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
         .join('&');

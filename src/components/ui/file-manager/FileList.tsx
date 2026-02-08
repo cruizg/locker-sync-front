@@ -16,6 +16,7 @@ import { EmptyState } from "../file-not-found/EmtyState";
 import useUploadStore from "@/store/ui/ui-upload";
 import { Upload, FileUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getDownloadItem } from "@/actions/item/get-download-item";
 
 function createDoubleTapHandler(callback: () => void, delay = 250) {
   let lastTap = 0;
@@ -48,7 +49,7 @@ export const FileList = React.memo(() => {
   const [shareItem, setShareItem] = useState<any | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
-
+  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
   const layoutClasses: Record<string, string> = {
     grid: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4",
     list: "flex flex-col",
@@ -147,7 +148,7 @@ export const FileList = React.memo(() => {
               name: file.name,
               file,
               parentTempId: folderTempId, // 👈 NO parent_id
-            //   parent_id: ruta
+              //   parent_id: ruta
             });
           });
         }
@@ -197,7 +198,7 @@ export const FileList = React.memo(() => {
         // ======================
         if (fileEntry.isDirectory) {
           const dirEntry = fileEntry as FileSystemDirectoryEntry;
-        //   handleDirectoryEntry(dirEntry, ruta ? undefined : undefined);
+          //   handleDirectoryEntry(dirEntry, ruta ? undefined : undefined);
           handleDirectoryEntry(dirEntry);
         }
       }
@@ -241,9 +242,64 @@ export const FileList = React.memo(() => {
       openFile(item);
     }
   };
+  ("use client");
 
+  const downloadFileFolder = async (item: any) => {
+    if (downloadingIds.has(item.uid)) return;
+
+    setDownloadingIds((prev) => new Set(prev).add(item.uid));
+
+    try {
+      const res = await getDownloadItem(item.uid);
+
+      if (!res?.ok || !res.url) {
+        throw new Error("No autorizado para descargar");
+      }
+
+      const response = await fetch(res.url, {
+        method: "GET",
+        headers: {
+          "x-token": res.token,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al descargar");
+      }
+
+      const contentDisposition = response.headers.get("Content-Disposition");
+      let filename = item.name;
+
+      if (contentDisposition?.includes("filename=")) {
+        const match = contentDisposition.match(
+          /filename\*?=['"]?(?:UTF-8''|)?([^;"'\n\r]+)/,
+        );
+        if (match?.[1]) filename = decodeURIComponent(match[1]);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDownloadingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(item.uid);
+        return next;
+      });
+    }
+  };
   const handleShare = (item: any) => setShareItem(item);
-  const handleDownload = (item: any) => openFile(item);
+  const handleDownload = (item: any) => downloadFileFolder(item);
 
   /* -------------------------
     Infinite scroll
@@ -382,6 +438,7 @@ export const FileList = React.memo(() => {
                         layout="list"
                         onShare={handleShare}
                         onDownload={handleDownload}
+                        isDownloading={downloadingIds.has(item.uid)}
                       />
                     </div>
                   </div>
@@ -404,6 +461,7 @@ export const FileList = React.memo(() => {
                       layout="grid"
                       onShare={handleShare}
                       onDownload={handleDownload}
+                      isDownloading={downloadingIds.has(item.uid)}
                     />
 
                     <h2 className="flex items-center gap-2 truncate text-sm font-medium text-zinc-800 dark:text-slate-200 mb-2">
