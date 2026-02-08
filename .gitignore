@@ -1,0 +1,78 @@
+# ===============================
+# Dependencies
+# ===============================
+node_modules/
+
+# ===============================
+# Next.js build output
+# ===============================
+.next/
+out/
+dist/
+
+# ===============================
+# Environment variables
+# ===============================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# ===============================
+# Logs
+# ===============================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ===============================
+# OS generated files
+# ===============================
+.DS_Store
+Thumbs.db
+
+# ===============================
+# IDE / Editors
+# ===============================
+.idea/
+.vscode/
+*.swp
+
+# ===============================
+# Test coverage
+# ===============================
+coverage/
+TEST*.xml
+
+# ===============================
+# Build / cache
+# ===============================
+.cache/
+.turbo/
+
+# ===============================
+# Package manager
+# ===============================
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ===============================
+# Optional: large media files
+# ===============================
+*.mp4
+*.mov
+*.avi
+*.wmv
+*.flv
+*.tiff
+
+# ===============================
+# Optional: compiled artifacts
+# ===============================
+*.class
+*.jar
+*.exe
+*.app
