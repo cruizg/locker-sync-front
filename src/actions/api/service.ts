@@ -1,38 +1,38 @@
-import axios, { AxiosInstance } from 'axios';
-import createAuthRefreshInterceptor from 'axios-auth-refresh';
+import axios from 'axios';
+import { getSession } from 'next-auth/react';
+import { auth } from "@/auth.config";
+// TODO: MANEJO DE REFRESCAR TOKEN CUANDO EXPIRA
+const baseURL = process.env.NEXT_PUBLIC_URL_BACKEND || 'http://localhost:3000';
 
-const serviceApi = (token: string | null) => {
-  const baseURL = process.env.URL_BACKEND || 'http://localhost:3000';
+export const serviceApi = axios.create({ baseURL });
+serviceApi.defaults.timeout = 25000; // 25 segundos de timeout
 
-  const api: AxiosInstance = axios.create({ baseURL });
-  api.defaults.timeout = 25000;
+serviceApi.interceptors.request.use(
+  async (config: any) => {
+    let session;
 
-  const refreshAuthLogic = async () => {
-    // Evita la ejecución en el servidor
-    if (typeof window !== 'undefined' && token) {
-      try {
-        const response = await axios.get(`${baseURL}/api/users/auth`, {
-          headers: {
-            'x-token': token,
-          },
-        });
-        // Actualiza el token si la respuesta es exitosa
-        if (response.data && response.data.token) {
-          token = response.data.token;
-        }
-      } catch (error) {
-        console.error('Error refreshing token:', error);
+    if (typeof window === 'undefined') {
+      // Estamos en el lado del servidor
+      session = await auth();
+      if (session?.user?.token) {
+        config.headers['x-token'] = session.user.token;
       }
+    } else {
+      // Estamos en el lado del cliente
+      const token = localStorage.getItem('token');
+      if (token) {
+        config.headers['x-token'] = token;
+      }
+      // session = await getSession();
     }
-
-    return Promise.resolve();
-  };
-
-  createAuthRefreshInterceptor(api, refreshAuthLogic, {
-    statusCodes: [401],
-  });
-//   console.log({api})
-  return api;
-};
-
+    // if (session?.user?.token) {
+    //   config.headers['x-token'] = token;
+    //   // config.headers['x-token'] = session.user.token;
+    // }
+    // console.log({config})
+    return config;
+  }
+);
 export default serviceApi;
+
+
