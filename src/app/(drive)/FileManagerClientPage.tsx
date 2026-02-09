@@ -1,4 +1,4 @@
-// 'use client';
+'use client';
 
 import { useFileManager } from '@/contexts/FileManagerContext';
 import { AddFile } from '@/components/ui/file-manager/AddFile';

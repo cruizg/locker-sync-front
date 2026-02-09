@@ -49,7 +49,7 @@ export const FileList = React.memo(() => {
   const [shareItem, setShareItem] = useState<any | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
-  const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
+  // Removed downloadingIds state: const [downloadingIds, setDownloadingIds] = useState<Set<string>>(new Set());
   const layoutClasses: Record<string, string> = {
     grid: "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4",
     list: "flex flex-col",
@@ -88,33 +88,6 @@ export const FileList = React.memo(() => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
-
-  //   const handleDrop = useCallback(
-  //     (e: React.DragEvent) => {
-  //       e.preventDefault();
-  //       e.stopPropagation();
-
-  //       setIsDragging(false);
-  //       setDragCounter(0);
-
-  //       const files = Array.from(e.dataTransfer.files);
-
-  //       if (files.length === 0) return;
-
-  //       // Procesar cada archivo usando la misma lógica de AddFile
-  //       files.forEach((file) => {
-  //         addUploadTask({
-  //           type: "file",
-  //           name: file.name,
-  //           parent_id: ruta,
-  //           file,
-  //         });
-  //       });
-
-  //       console.log(`📁 ${files.length} archivo(s) añadido(s) a la cola de subida`);
-  //     },
-  //     [ruta, addUploadTask]
-  //   );
 
   const handleDirectoryEntry = (
     directoryEntry: FileSystemDirectoryEntry,
@@ -211,29 +184,6 @@ export const FileList = React.memo(() => {
 
   const openFile = (item: any) => {
     router.push(`/preview/${item.uid}`);
-    // const ext = file.name.split(".").pop()?.toLowerCase();
-    // const previewable = [
-    //   "pdf",
-    //   "png",
-    //   "jpg",
-    //   "jpeg",
-    //   "gif",
-    //   "webp",
-    //   "mp4",
-    //   "webm",
-    //   "mp3",
-    //   "wav",
-    // ];
-
-    // if (previewable.includes(ext!)) {
-    //   window.open(file.path, "_blank", "noopener,noreferrer");
-    //   return;
-    // }
-
-    // const link = document.createElement("a");
-    // link.href = file.path;
-    // link.download = file.name;
-    // link.click();
   };
 
   const handleOpen = (item: any) => {
@@ -243,64 +193,18 @@ export const FileList = React.memo(() => {
       openFile(item);
     }
   };
-  ("use client");
 
-  const downloadFileFolder = async (item: any) => {
-    if (downloadingIds.has(item.uid)) return;
-
-    setDownloadingIds((prev) => new Set(prev).add(item.uid));
-
-    try {
-      const res = await getDownloadItem(item.uid);
-
-      if (!res?.ok || !res.url) {
-        throw new Error("No autorizado para descargar");
-      }
-
-      const response = await fetch(res.url, {
-        method: "GET",
-        headers: {
-          "x-token": res.token,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al descargar");
-      }
-
-      const contentDisposition = response.headers.get("Content-Disposition");
-      let filename = item.name;
-
-      if (contentDisposition?.includes("filename=")) {
-        const match = contentDisposition.match(
-          /filename\*?=['"]?(?:UTF-8''|)?([^;"'\n\r]+)/,
-        );
-        if (match?.[1]) filename = decodeURIComponent(match[1]);
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setDownloadingIds((prev) => {
-        const next = new Set(prev);
-        next.delete(item.uid);
-        return next;
-      });
+  // New function to get download details for DownloadButton
+  const getDownloadDetailsForButton = useCallback(async (fileId: string) => {
+    const res = await getDownloadItem(fileId);
+    if (!res?.ok || !res.url) {
+      throw new Error("No autorizado para descargar"); // Or handle more gracefully
     }
-  };
+    return { url: res.url, token: res.token };
+  }, []);
+
   const handleShare = (item: any) => setShareItem(item);
-  const handleDownload = (item: any) => downloadFileFolder(item);
+  // Removed handleDownload and downloadFileFolder functions.
 
   /* -------------------------
     Infinite scroll
@@ -400,7 +304,7 @@ export const FileList = React.memo(() => {
                   <div
                     onClick={onDoubleTap}
                     className="group grid grid-cols-1 md:grid-cols-[minmax(280px,1fr)_120px_180px_48px]
-                               items-center gap-2 md:gap-4 px-4 md:px-6 py-3
+                               items-center gap-2 md:gap-1 px-3 md:px-4 py-1
                                hover:bg-blue-50 dark:hover:bg-slate-700/40
                                border-b border-zinc-200 dark:border-slate-700
                                transition cursor-pointer"
@@ -438,9 +342,9 @@ export const FileList = React.memo(() => {
                         item={item}
                         layout="list"
                         onShare={handleShare}
-                        onDownload={handleDownload}
-                        isDownloading={downloadingIds.has(item.uid)}
+                        onDownload={getDownloadDetailsForButton}
                       />
+
                     </div>
                   </div>
                 )}
@@ -449,7 +353,7 @@ export const FileList = React.memo(() => {
                 {layoutType === "grid" && (
                   <div
                     onDoubleClick={() => handleOpen(item)}
-                    className="relative rounded-xl p-4 cursor-pointer transition
+                    className="group relative rounded-xl p-4 cursor-pointer transition
                             bg-white dark:bg-slate-800
                             border border-zinc-200 dark:border-slate-700
                             shadow-sm
@@ -461,8 +365,7 @@ export const FileList = React.memo(() => {
                       item={item}
                       layout="grid"
                       onShare={handleShare}
-                      onDownload={handleDownload}
-                      isDownloading={downloadingIds.has(item.uid)}
+                      onDownload={getDownloadDetailsForButton}
                     />
 
                     <h2 className="flex items-center gap-2 truncate text-sm font-medium text-zinc-800 dark:text-slate-200 mb-2">

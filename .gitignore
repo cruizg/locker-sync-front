@@ -9,6 +9,9 @@ node_modules/
 .next/
 out/
 dist/
+.yarn/
+.pnp.cjs
+.pnp.loader.mjs
 
 # ===============================
 # Environment variables

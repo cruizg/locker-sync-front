@@ -3,6 +3,7 @@ import './globals.css'
 
 import { inter } from '@/config/fonts';
 import { Provider } from '@/components';
+import { DownloadManager } from '@/components/ui/download-manager/download-manager';
 
 
 // const inter = Inter({ subsets: ['latin'] })
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <Provider>
           {children}
+          <DownloadManager />
         </Provider>
       </body>
     </html>

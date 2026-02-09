@@ -3,17 +3,7 @@ import { create } from 'zustand';
 export type UploadTaskType = 'file' | 'folder';
 export type UploadTaskStatus = 'pending' | 'uploading' | 'processing' | 'completed' | 'failed';
 
-// export interface UploadTask {
-//     id: string;
-//     tempId?: string;
-//     type: UploadTaskType;
-//     name: string; // Display name (file.name or folder name)
-//     status: UploadTaskStatus;
-//     progress: number; // 0-100
-//     errorMessage?: string;
-//     parent_id?: string;
-//     file?: File; // Optional: Only for type 'file'
-// }
+
 export interface UploadTask {
   id: string;              // ID interno (store)
   tempId: string;          // ID lógico frontend
